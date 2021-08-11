@@ -1,0 +1,14 @@
+select
+	pfp.tid as 帖子id,
+	pfp.author as 用户 ,
+	pcm.phone as 手机号,
+	pfp.commentPictureUrl as 图片地址,
+	pfp.message as 回复,
+	from_unixtime(pfp.dateline) as 时间
+from
+	pico_forum_post pfp
+left join pico_common_member pcm on
+	pcm.uid = pfp.authorid
+where
+	pfp.commentPictureUrl like '%http%'
+	and pfp.tid = 63887

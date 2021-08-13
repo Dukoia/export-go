@@ -28,7 +28,7 @@ func main() {
 	if err != nil {
 		fmt.Println("read to fd fail", err)
 	}
-	fmt.Println(string(fd))
+	//fmt.Println(string(fd))
 	var ss = string(fd)
 	var arr = strings.Split(ss, ",")
 	//fmt.Println(arr[0])
@@ -47,12 +47,20 @@ func main() {
 	}
 	defer sql.Close()
 	ssql, err := ioutil.ReadAll(sql)
-	if !strings.HasPrefix(string(ssql), "select") {
+	var bomstart = "\uFEFF"
+	var realsql string
+	if strings.HasPrefix(string(ssql), bomstart) {
+		realsql = strings.ReplaceAll(string(ssql), bomstart, "")
+	} else {
+		realsql = string(ssql)
+	}
+
+	if !strings.HasPrefix(realsql, "select") {
 		fmt.Println("非查询sql,不允许执行")
 		fmt.Println(string(ssql))
 		return
 	}
-	rows, _ := db.Query(string(ssql)) //获取所有数据
+	rows, _ := db.Query(realsql) //获取所有数据
 
 	columns, _ := rows.Columns()
 	columnLength := len(columns)
@@ -84,7 +92,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(dir)
+	fmt.Println("导出文件成功,文件存放位置:" + dir)
 }
 
 func Strval(value interface{}) string {
